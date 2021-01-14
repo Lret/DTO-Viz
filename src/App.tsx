@@ -1,22 +1,28 @@
 import React from 'react';
-import logo from './logo.svg';
+import { NodeEditor } from 'flume';
+import config from './components/graph/config/flume'
 import './App.css';
 
 function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
+        <div style={{width: "80vw", height: "80vh"}}>
+          <NodeEditor
+            portTypes={config.portTypes}
+            nodeTypes={config.nodeTypes}
+          />
+        </div>
         <p>
-          Edit <code>src/App.tsx</code> and save to reload.
+          Welcome to <code>DTO-Viz</code>.
         </p>
         <a
           className="App-link"
-          href="https://reactjs.org"
+          href="https://burning-vision.com"
           target="_blank"
           rel="noopener noreferrer"
         >
-          Learn React
+          Burning vision
         </a>
       </header>
     </div>
