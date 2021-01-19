@@ -1,85 +1,130 @@
 // @ts-nocheck
-import {useRef, useEffect} from 'react';
-import Rete from "rete";
+import React, { useRef, useEffect } from 'react';
+import Rete/*, { Control }*/ from "rete";
 import ConnectionPlugin from 'rete-connection-plugin';
 import ContextMenuPlugin from 'rete-context-menu-plugin';
-import ReactRenderPlugin/*, { Node, Socket, Control }*/ from 'rete-react-render-plugin';
-import AlightRenderPlugin from 'rete-alight-render-plugin';
+import ReactRenderPlugin, { Node, Socket, Control }  from 'rete-react-render-plugin';
+// import AlightRenderPlugin from 'rete-alight-render-plugin';
 import './App.css';
 
 const numSocket = new Rete.Socket('Number value');
 
-////////// Control
+// Node
+export class MyNode extends Node {
+  render() {
+    const { node, bindSocket, bindControl } = this.props;
+    const { outputs, controls, inputs, selected } = this.state;
 
-class MessageControl extends Rete.Control {
-    constructor(emitter, msg) {
-        super("num");
-        this.emitter = emitter;
-        this.template = '<input type="number" :value="value" @input="change($event)"/>';
-
-        this.scope = {
-            msg,
-            change: this.change.bind(this)
-        };
-    }
-
-    change(e) {
-        this.scope.value = +e.target.value;
-        this.update();
-    }
-
-    update() {
-        this.putData('num', this.scope.value)
-        this.emitter.trigger('process');
-        this._alight.scan();
-    }
-
-    mounted() {
-        this.scope.value = this.getData('num') || 0;
-        this.update();
-    }
-
-    setValue(val) {
-        this.scope.value = val;
-        this._alight.scan()
-    }
+    return (
+      <div className={`node ${selected}`} style={{ background: "grey" }}>
+        <div className="title">
+          {"<<"} {node.name} {">>"}
+        </div>
+        {/* Outputs */}
+        {outputs.map(output => (
+          <div className="output" key={output.key}>
+            <div className="output-title">{output.name}</div>
+            <Socket
+              type="output"
+              socket={output.socket}
+              io={output}
+              innerRef={bindSocket}
+            />
+          </div>
+        ))}
+        {/* Controls */}
+        {controls.map(control => (
+          <Control
+            className="control"
+            key={control.key}
+            control={control}
+            innerRef={bindControl}
+          />
+        ))}
+        {/* Inputs */}
+        {inputs.map(input => (
+          <div className="input" key={input.key}>
+            <Socket
+              type="input"
+              socket={input.socket}
+              io={input}
+              innerRef={bindSocket}
+            />
+            {!input.showControl() && (
+              <div className="input-title">{input.name}</div>
+            )}
+            {input.showControl() && (
+              <Control
+                className="input-control"
+                control={input.control}
+                innerRef={bindControl}
+              />
+            )}
+          </div>
+        ))}
+      </div>
+    );
+  }
 }
 
-//////////
+// Control
+class NumControl extends Rete.Control {
+  static component = ({ value, onChange }) => (
+    <input
+      type="number"
+      value={value}
+      ref={ref => {
+        ref && ref.addEventListener("pointerdown", e => e.stopPropagation());
+      }}
+      onChange={e => onChange(+e.target.value)}
+    />
+  );
 
+  constructor(emitter, key, node, readonly = false) {
+    super(key);
+    this.emitter = emitter;
+    this.key = key;
+    this.component = NumControl.component;
 
-//#region Node
+    const initial = node.data[key] || 0;
+
+    node.data[key] = initial;
+    this.props = {
+      readonly,
+      value: initial,
+      onChange: v => {
+        this.setValue(v);
+        this.emitter.trigger("process");
+      }
+    };
+  }
+
+  setValue(val) {
+    this.props.value = val;
+    this.putData(this.key, val);
+    this.update();
+  }
+}
+
+// Component
 class NumComponent extends Rete.Component {
   constructor() {
     super("Number");
-    // this.data.component = MyNode;
   }
 
   builder(node) {
-    const _in = new Rete.Input('num', 'Number', numSocket, true);
-    node.addInput(_in);
+    var out1 = new Rete.Output("num", "Number", numSocket);
+    var ctrl = new NumControl(this.editor, "num", node);
 
-    const _out = new Rete.Output('num', 'Number', numSocket);
-    node.addOutput(_out);
-
-    var numControl = new MessageControl(this.editor, node.data.num);
-    node.addControl(numControl); // nodes are chainable
-
-    return node;
+    return node.addControl(ctrl).addOutput(out1);
   }
 
   worker(node, inputs, outputs) {
-    console.log(inputs?.num[0])
-    // console.log(this.name);
-    // console.log(this.data);
-    // console.log(node);
-    // console.log(inputs);
-    // console.log(outputs); 
-    // console.log()
-    outputs['num'] = node.data.num;
+    console.log(node.data)
+    outputs["num"] = node.data.num;
   }
 }
-//#endregion
+
 
 // Application
 function App() {
@@ -92,8 +137,8 @@ function App() {
     // Editor
     const editor = new Rete.NodeEditor('demo@0.1.0', container);
     editor.use(ConnectionPlugin);
-    // editor.use(ReactRenderPlugin);
-    editor.use(AlightRenderPlugin);
+    editor.use(ReactRenderPlugin);
+    // editor.use(AlightRenderPlugin);
     editor.use(ContextMenuPlugin);
 
   
