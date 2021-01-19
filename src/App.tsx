@@ -1,11 +1,52 @@
+// @ts-nocheck
 import {useRef, useEffect} from 'react';
 import Rete from "rete";
 import ConnectionPlugin from 'rete-connection-plugin';
-import ReactRenderPlugin/*, { Node, Socket, Control }*/ from 'rete-react-render-plugin';
 import ContextMenuPlugin from 'rete-context-menu-plugin';
+import ReactRenderPlugin/*, { Node, Socket, Control }*/ from 'rete-react-render-plugin';
+import AlightRenderPlugin from 'rete-alight-render-plugin';
 import './App.css';
 
 const numSocket = new Rete.Socket('Number value');
+
+////////// Control
+
+class MessageControl extends Rete.Control {
+    constructor(emitter, msg) {
+        super("num");
+        this.emitter = emitter;
+        this.template = '<input type="number" :value="value" @input="change($event)"/>';
+
+        this.scope = {
+            msg,
+            change: this.change.bind(this)
+        };
+    }
+
+    change(e) {
+        this.scope.value = +e.target.value;
+        this.update();
+    }
+
+    update() {
+        this.putData('num', this.scope.value)
+        this.emitter.trigger('process');
+        this._alight.scan();
+    }
+
+    mounted() {
+        this.scope.value = this.getData('num') || 0;
+        this.update();
+    }
+
+    setValue(val) {
+        this.scope.value = val;
+        this._alight.scan()
+    }
+}
+
+//////////
+
 
 //#region Node
 class NumComponent extends Rete.Component {
@@ -13,20 +54,28 @@ class NumComponent extends Rete.Component {
     super("Number");
     // this.data.component = MyNode;
   }
-  // constructor() {
-  //   super('Number');
-  // }
 
   builder(node) {
-    // let out = new Rete.Output('num', 'Number', numSocket);
-    let out = new Rete.Output('num', 'Number', numSocket);
+    const _in = new Rete.Input('num', 'Number', numSocket, true);
+    node.addInput(_in);
 
-    node.addOutput(out);
+    const _out = new Rete.Output('num', 'Number', numSocket);
+    node.addOutput(_out);
+
+    var numControl = new MessageControl(this.editor, node.data.num);
+    node.addControl(numControl); // nodes are chainable
 
     return node;
   }
 
   worker(node, inputs, outputs) {
+    console.log(inputs?.num[0])
+    // console.log(this.name);
+    // console.log(this.data);
+    // console.log(node);
+    // console.log(inputs);
+    // console.log(outputs); 
+    // console.log()
     outputs['num'] = node.data.num;
   }
 }
@@ -43,8 +92,10 @@ function App() {
     // Editor
     const editor = new Rete.NodeEditor('demo@0.1.0', container);
     editor.use(ConnectionPlugin);
-    editor.use(ReactRenderPlugin);
+    // editor.use(ReactRenderPlugin);
+    editor.use(AlightRenderPlugin);
     editor.use(ContextMenuPlugin);
+
   
     // Engine
     const engine = new Rete.Engine('demo@0.1.0');
@@ -95,7 +146,6 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        {/* <div style={{height:"80vh", width:"80vw", backgroundImage: `url(${grid})`, backgroundRepeat:'repeat'}}>  */}
         <div style={{height:"80vh", width:"80vw"}}> 
           <div ref={rete_ref} style={{
             borderRadius:"12px",
