@@ -6,6 +6,8 @@ import ReactRenderPlugin/*, { Node, Socket, Control }*/ from 'rete-react-render-
 // import ContextMenuPlugin from 'rete-context-menu-plugin';
 import './App.css';
 
+import grid from './assets/grid.png';
+
 const numSocket = new Rete.Socket('Number value');
 
 class NumComponent extends Rete.Component {
@@ -99,8 +101,38 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        {/* <div id="rete"></div> */}
-        <div ref={rete_ref} style={{height:"80% !importent", width:"100%"}} />
+        {/* <div style={{height:"80vh", width:"80vw", backgroundImage: `url(${grid})`, backgroundRepeat:'repeat'}}>  */}
+        <div style={{height:"80vh", width:"80vw"}}> 
+          <div ref={rete_ref} style={{
+            borderRadius:"12px",
+            backgroundColor:'rgb(26, 28, 29)',
+            backgroundSize:'30px 30px',
+            backgroundImage:`linear-gradient(
+              0deg,
+              transparent 24%,
+              rgba(255, 255, 255, 0.04) 25%,
+              rgba(255, 255, 255, 0.04) 26%,
+              transparent 27%,
+              transparent 74%,
+              rgba(255, 255, 255, 0.04) 75%,
+              rgba(255, 255, 255, 0.04) 76%,
+              transparent 77%,
+              transparent
+            ),
+            linear-gradient(
+              90deg,
+              transparent 24%,
+              rgba(255, 255, 255, 0.04) 25%,
+              rgba(255, 255, 255, 0.04) 26%,
+              transparent 27%,
+              transparent 74%,
+              rgba(255, 255, 255, 0.04) 75%,
+              rgba(255, 255, 255, 0.04) 76%,
+              transparent 77%,
+              transparent
+            )`
+          }}/>
+        </div>
         <p>
           Edit <code>src/App.tsx</code> and save to reload.
         </p>
