@@ -8,7 +8,10 @@ import ReactRenderPlugin from 'rete-react-render-plugin';
 import NumComponent from './components/num';
 import './Graph.css';
 
-// import Kernel?
+// import with Kernel?
+const components = [
+  new NumComponent()
+];
 
 function Graph () {
     // Variables
@@ -30,9 +33,10 @@ function Graph () {
       const engine = new Engine('demo@0.1.0');
   
       // Register nodes
-      const numComponent = new NumComponent();
-      editor.register(numComponent);  
-      engine.register(numComponent);    
+      components.forEach(component => {
+        editor.register(component);  
+        engine.register(component);
+      }); 
   
       // Event register
       editor.on(["process", "nodecreated", "noderemoved", "connectioncreated", "connectionremoved"], async () => {
@@ -42,14 +46,13 @@ function Graph () {
   
       editor.view.resize();
       editor.trigger('process');
-      console.log("Rete inialized")
-    },[/*Run once*/])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    },[/*Run once*/]);
 
     // View
     return (
       <div ref={rete_ref} className="Graph-container"/>
     );
-
 }
 
 export default Graph;
