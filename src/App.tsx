@@ -1,52 +1,15 @@
-import { useRef, useEffect } from 'react';
-import { Engine, NodeEditor } from "rete";
-
-import ConnectionPlugin from 'rete-connection-plugin';
-import ContextMenuPlugin from 'rete-context-menu-plugin';
-import ReactRenderPlugin from 'rete-react-render-plugin';
-
-import NumComponent from './components/graph/components/num';
-
+import React from 'react';
+import Graph from './components/graph/Graph';
 import './App.css';
 
 // Application
 function App() {
-  const rete_ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    // Rete mounting
-    const container = rete_ref.current;
-    if (!container) throw new Error("#rete element was not found.");
-    
-    // Editor
-    const editor = new NodeEditor('demo@0.1.0', container);
-    editor.use(ConnectionPlugin);
-    editor.use(ReactRenderPlugin);
-    editor.use(ContextMenuPlugin);
-
-    // Engine
-    const engine = new Engine('demo@0.1.0');
-
-    // Register nodes
-    const numComponent = new NumComponent();
-    editor.register(numComponent);  
-    engine.register(numComponent);    
-
-    editor.on(["process", "nodecreated", "noderemoved", "connectioncreated", "connectionremoved"], async () => {
-        await engine.abort();
-        await engine.process(editor.toJSON());
-    });
-
-    editor.view.resize();
-    editor.trigger('process');
-    console.log("Rete inialized")
-  },[/*Run once*/])
-
   // Render
   return (
     <div className="App">
       <header className="App-header">
         <div style={{height:"80vh", width:"80vw"}}> 
-          <div ref={rete_ref} className="Rete-container"/>
+          <Graph/>
         </div>
         <p>
           Edit <code>src/App.tsx</code> and save to reload.
