@@ -1,12 +1,20 @@
 import { Console } from "console";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Control } from "rete";
 
-const MyReactControl = () => {
-  return (
-      <div>Hello !</div>
-  )
-}
+// class MyReactControl extends React.Component {
+ 
+//   componentDidMount() {
+//       this.props.mounted();
+//   }
+ 
+//   render() {
+//     return (
+//         <input type="number" value={this.props.value} readOnly={this.props.readonly} onChange={e => this.props.onChange(+e.target.value)}/>
+//     )
+//   }
+// }
+
 
 // class MyReactControl extends React.Component {
 //
@@ -22,47 +30,65 @@ const MyReactControl = () => {
 //   }
 // }
 
+// const _component = ({ value, onChange }) => {
+//   useEffect(() => {
+//     console.log("TT")
+//   });
+//
+//   console.log(value, onchange);
+//   return (
+//     <input 
+//       type="number" 
+//       value={value} 
+//       ref={ref => {ref && ref.addEventListener("pointerdown", e => e.stopPropagation());}}
+//       onChange={e => onChange(+e.target.value)}
+//     />
+//   );
+// };
+
 export default class NumController extends Control {
   render: string = 'react';
+
   // component: FunctionComponent<Props>
-  component = ({ value, onChange }) => {
-    // return (<div>Hello</div>)
-    console.log(value, onchange);
-    return (
-      <input 
-        type="number" 
-        value={value} 
-        ref={ref => {ref && ref.addEventListener("pointerdown", e => e.stopPropagation());}}
-        onChange={e => onChange(+e.target.value)}
-      />
-    );
-  };
+  
+  //component = //_component;
+  //  ({value, readonly, onChange/*, mounted*/}) => {
+  //    console.log("init")
+  //    // mounted();
+  //    return (<input type="number" value={value} readOnly={readonly} onChange={e => onChange(+e.target.value)}/>)
+  //  }
 
   constructor(emitter, key, node/*name*/, readonly = false) {
     super(key);
     // @ts-ignore
-    // this.component = MyReactControl;
+    this.component = //MyReactControl;
+    ({value, readonly, onChange/*, mounted*/}) => {
+      console.log("init", value)
+      // mounted();
+      return (<input type="number" value={value} readOnly={readonly} onChange={e => onChange(+e.target.value)}/>)
+    };
 
    // EXTRA 
-   const initial = node.data[key] || 0;
-   node.data[key] = initial;
+  //  const initial = node.data[key] || 0;
+  //  node.data[key] = initial;
 
     // @ts-ignore
     this.props = { 
       readonly,
       emitter, 
       node,/*name*/
-      value: initial,
-      onChange: value => {
-        // this.setValue(value);
+      value: 0,//this.setValue(this.getData(this.key)) ?? 0,//0,//initial,
+      onChange: val => {
+        console.log("Update", val)
+        this.setValue(val);
         // @ts-ignore
-        this.props.value = value;
-        this.putData(key, value);
+        // this.props.value = val  ;
+        // this.putData(key, val);
         // this.update();
+
         emitter.trigger("process");
       }
     };
-
 // this.props = { emitter, node/*name*/ };
 
 //    const initial = node.data[key] || 0;
@@ -75,6 +101,14 @@ export default class NumController extends Control {
 //           /*this.*/emitter.trigger("process");
 //         }
 //       };
+  }
+
+  setValue(val) {
+    //@ts-ignore
+    this.props.value = val;
+    this.putData(this.key, val)
+    // this.update();
+    return val;
   }
 }
 
