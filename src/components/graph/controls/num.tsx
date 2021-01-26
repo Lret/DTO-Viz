@@ -46,27 +46,41 @@ import { Control } from "rete";
 //   );
 // };
 
+const _component = //_component;
+({val, readonly, onChange/*, mounted*/}) => {
+  const [value, setValue] = useState(val);
+
+  console.log("init")
+  // mounted();
+  return (<input 
+    type="number" 
+    value={value} 
+    readOnly={readonly} 
+    onChange={ e => {
+      onChange(+e.target.value);
+      setValue(e.target.value);
+    }}
+  />)
+}
+
 export default class NumController extends Control {
   render: string = 'react';
+  component = _component;
 
   // component: FunctionComponent<Props>
-  
-  //component = //_component;
-  //  ({value, readonly, onChange/*, mounted*/}) => {
-  //    console.log("init")
-  //    // mounted();
-  //    return (<input type="number" value={value} readOnly={readonly} onChange={e => onChange(+e.target.value)}/>)
-  //  }
+  // component = //_component;
+  //   ({val, readonly, onChange/*, mounted*/}) => {
+  //     const [value, setValue] = useState(val);
+
+  //     console.log("init")
+  //     // mounted();
+  //     return (<input type="number" value={value} readOnly={readonly} onChange={e => onChange(+e.target.value)}/>)
+  //   }
 
   constructor(emitter, key, node/*name*/, readonly = false) {
     super(key);
     // @ts-ignore
-    this.component = //MyReactControl;
-    ({value, readonly, onChange/*, mounted*/}) => {
-      console.log("init", value)
-      // mounted();
-      return (<input type="number" value={value} readOnly={readonly} onChange={e => onChange(+e.target.value)}/>)
-    };
+    // this.component = MyReactControl;
 
    // EXTRA 
   //  const initial = node.data[key] || 0;
@@ -79,7 +93,7 @@ export default class NumController extends Control {
       node,/*name*/
       value: 0,//this.setValue(this.getData(this.key)) ?? 0,//0,//initial,
       onChange: val => {
-        console.log("Update", val)
+        console.log("Update")
         this.setValue(val);
         // @ts-ignore
         // this.props.value = val  ;
