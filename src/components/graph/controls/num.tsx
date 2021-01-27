@@ -56,13 +56,37 @@ function useWrapState<S>(initialState: S | (() => S), setEffectState: (value: S)
   // }]
 };
 
-const NumComponent = ({initalValue, updateValue, readonly}: BaseProps<number>) => {
-  const [value, setValue] = useWrapState(initalValue, updateValue);
-  return (<input type="number" value={value} readOnly={readonly} onChange={ e => setValue(+e.target.value)}
-  />)
-}
+// const NumComponent = ({initalValue, updateValue, readonly}: BaseProps<number>) => {
+//   const [value, setValue] = useWrapState(initalValue, updateValue);
+//   return (<input type="number" value={value} readOnly={readonly} onChange={ e => setValue(+e.target.value)}
+//   />)
+// }
 
-const NumController = MakeController<number>(0, NumComponent);
+// const NumController = MakeController<number>(0, NumComponent);
+
+
+const NumController = MakeController<number>(0,
+  // React component
+  ({initalValue, updateValue, readonly}: BaseProps<number>) => {
+    // State variables
+    const [value, setValue] = useWrapState(initalValue, updateValue);
+    
+    // Render template
+    return (<input type="number" value={value} readOnly={readonly} onChange={ e => setValue(+e.target.value)}
+  />)
+});
+
+
+const TextController = MakeController<string>("Hello",
+  // React component
+  ({initalValue, updateValue, readonly}: BaseProps<string>) => {
+    // State variables
+    const [value, setValue] = useWrapState(initalValue, updateValue);
+    
+    // Render template
+    return (<input type="text" value={value} readOnly={readonly} onChange={ e => setValue(e.target.value)}
+  />)
+});
 
 // export default class NumController extends BaseController<number> {
 //   constructor(emitter, key: string, node, readonly: boolean = false) {
