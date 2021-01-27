@@ -36,7 +36,7 @@ class BaseController<T, P extends BaseProps<T> = BaseProps<T>> extends Control {
   }
 }
 
-function MakeController<T, P extends BaseProps<T> = BaseProps<T>>(inital : T, template : FunctionComponent<P>, props : P) : (emitter, key: string, node, readonly: boolean) => BaseController<T, P> {
+function MakeController<T, P extends BaseProps<T> = BaseProps<T>>(inital : T, template : FunctionComponent<P>, props /*: child_P*/ = {}) : (emitter, key: string, node, readonly?: boolean) => BaseController<T, P> {
   return (emitter, key: string, node, readonly: boolean = false) => 
     new BaseController<T, P>(emitter, key, node, template, inital, props, readonly);
 }
@@ -58,20 +58,16 @@ function useWrapState<S>(initialState: S | (() => S), setEffectState: (value: S)
 
 const NumComponent = ({initalValue, updateValue, readonly}: BaseProps<number>) => {
   const [value, setValue] = useWrapState(initalValue, updateValue);
-  // const ... = useController(emitter, key, node, readonly = false);
-
-  return (<input type="number" value={value} readOnly={readonly} onChange={ e => {
-      const newValue = +e.target.value;
-      setValue(newValue);
-      setValue(newValue);
-    }}
+  return (<input type="number" value={value} readOnly={readonly} onChange={ e => setValue(+e.target.value)}
   />)
-
-  // return controller
 }
 
-export default class NumController extends BaseController<number> {
-  constructor(emitter, key: string, node, readonly: boolean = false) {
-    super(emitter, key, node, NumComponent, 0, readonly)
-  }
-}
+const NumController = MakeController<number>(0, NumComponent);
+
+// export default class NumController extends BaseController<number> {
+//   constructor(emitter, key: string, node, readonly: boolean = false) {
+//     super(emitter, key, node, NumComponent, 0, readonly)
+//   }
+// }
+
+export default NumController;
