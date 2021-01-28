@@ -28,6 +28,7 @@ class BaseController<T, P extends BaseProps<T> = BaseProps<T>> extends Control {
       updateValue: (value) => {
         this.putData(key, value);
         emitter.trigger("process");
+        // this.update();
         //return value;
       },
       readonly,
@@ -88,10 +89,59 @@ const TextController = MakeController<string>("Hello",
   />)
 });
 
+interface FetchProps extends BaseProps<{
+  // Request
+  title/*?*/: string
+}> {
+  // Props
+  requestUrl: string
+}
+
+
+const FetchController = MakeController({ title: ""},
+  // React component
+  ({initalValue, updateValue, readonly, requestUrl = 'https://jsonplaceholder.typicode.com/todos/1'}: FetchProps) => {
+    // State variables
+    const [value, setValue] = useWrapState(initalValue, updateValue);
+
+    useEffect(() => {
+      console.log("FETCH")
+      fetch(requestUrl)
+      .then(response => response.json())
+      .then(json => setValue(json))
+    }, []);
+    
+    // Render template
+    return (<input type="text" value={value.title} readOnly={readonly} onChange={ e => setValue({...value, title : e.target.value})}
+  />)
+});
+
+
+/* Dobule Hooked
+const FetchController = MakeController({},
+  // React component
+  ({initalValue, updateValue, readonly, requestUrl = 'https://jsonplaceholder.typicode.com/todos/1'}: FetchProps) => {
+    
+    useEffect(() => {
+      console.log("FETCH")
+      fetch(requestUrl)
+      .then(response => response.json())
+      .then(json => updateValue(json))
+    }, []);
+    
+    // Render template
+    // return (<input type="text" value={value.title} readOnly={readonly} onChange={ e => setValue({...value, title : e.target.value})}
+    return (<input type="text" value={initalValue.title} readOnly={readonly} onChange={ e => updateValue({...initalValue, title : e.target.value})}
+  />)
+});
+*/
+
+const WelcomeController = MakeController<number>(0, () => <div>Welcome</div>);
+
 // export default class NumController extends BaseController<number> {
 //   constructor(emitter, key: string, node, readonly: boolean = false) {
 //     super(emitter, key, node, NumComponent, 0, readonly)
 //   }
 // }
 
-export default NumController;
+export default FetchController;
