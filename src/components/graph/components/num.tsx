@@ -20,7 +20,7 @@ export default class NumComponent extends Component {
   }
 
   worker(node, inputs, outputs) {
-    console.log(node.data);
+    console.log(/*node.data, */node.data[this.key], node.data[this.key].title);
     // this.node.outputs = [this.node.outputs[this.key]];
     // this.node.outputs.clear();
     // this.node.outputs.set(this.key, node.data);
